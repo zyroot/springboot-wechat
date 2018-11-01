@@ -1,0 +1,9 @@
+server:
+  port: 80
+
+
+wechat:
+#  appID: wx19eb7b496e9e29cc    #公司
+#  appsecret: ae1479087ca5f5fbf2ba56a80b5cec7b
+  appID: wx341e79d4de427749   #测试
+  appsecret: 41d37dd76452057dbaa8f4b139f277ea
