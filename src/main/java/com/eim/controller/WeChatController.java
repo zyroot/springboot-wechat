@@ -1,5 +1,6 @@
 package com.eim.controller;
 
+import com.eim.utils.MyHttpRequest;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.exception.WxErrorException;
@@ -27,12 +28,18 @@ public class WeChatController {
     /**
      *
      http://wx.natappvip.cc/authorize?url=http://wx.natappvip.cc/userInfo&state=null，
+     http://localhost/authorize?url=http://wx.natappvip.cc/userInfo&state=null，
      http://app.ei-marketing.net/authorize?url=http://app.ei-marketing.net/userInfo&state=null，
      用户通过访问该链接后，在上面这个userInfo方法中就可以通过@RequestParam获取到code和state，
      不过这里我们并没有state并没有传值，所以获取到也没用。获取到了code，
      就可以获取到wxMpOAuth2AccessToken，
      获取到了wxMpOAuth2AccessToken就可以获取到openId、accessToken、wxMpUser等信息了。
      */
+    @RequestMapping("/test")
+    public void test(){
+        String s = MyHttpRequest.sendGet("http://wx.natappvip.cc/authorize", "url=http://wx.natappvip.cc/userInfo&state=null");
+        System.out.println(s);
+    }
 
     @RequestMapping("/authorize")
     public String authorize(@RequestParam("url")String url,
