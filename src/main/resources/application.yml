@@ -1,9 +1,20 @@
 server:
-  port: 80
-
-
+  port: 8080
+  tomcat:
+    uri-encoding: utf-8
 wechat:
-#  appID: wx19eb7b496e9e29cc    #公司
-#  appsecret: ae1479087ca5f5fbf2ba56a80b5cec7b
-  appID: wx341e79d4de427749   #测试
-  appsecret: 41d37dd76452057dbaa8f4b139f277ea
+ #公司
+  appID: wx19eb7b496e9e29cc
+  appsecret: ae1479087ca5f5fbf2ba56a80b5cec7b
+ #测试
+#  appID: wx341e79d4de427749
+#  appsecret: 41d37dd76452057dbaa8f4b139f277ea
+spring:
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  messages:
+    encoding: UTF-8
+

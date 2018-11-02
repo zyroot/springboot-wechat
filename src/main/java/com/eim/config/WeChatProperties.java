@@ -15,4 +15,11 @@ public class WeChatProperties {
     private String appID;
 
     private String appsecret;
+
+    private String state;
+
+    private String url;
+
+    private String param;
+
 }

@@ -1,29 +1,41 @@
 package com.eim.controller;
 
+
 import com.eim.utils.MyHttpRequest;
+import com.eim.utils.RedirectUrlUtil;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.result.WxMpOAuth2AccessToken;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.management.StandardEmitterMBean;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.net.URLEncoder;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2018/11/1.
  */
 @Slf4j
 @Controller
+@RequestMapping("/wechat")
 public class WeChatController {
 
     @Autowired
     private WxMpService wxMpService;
+
+    @Autowired
+    private RedirectUrlUtil redirectUrlUtil;
 
     /**
      *
@@ -34,24 +46,40 @@ public class WeChatController {
      不过这里我们并没有state并没有传值，所以获取到也没用。获取到了code，
      就可以获取到wxMpOAuth2AccessToken，
      获取到了wxMpOAuth2AccessToken就可以获取到openId、accessToken、wxMpUser等信息了。
+     http://wx.natappvip.cc/authorize?url=http://wx.natappvip.cc/userInfo&state=http://wx.natappvip.cc/get
      */
-    @RequestMapping("/test")
-    public void test(){
-        String s = MyHttpRequest.sendGet("http://wx.natappvip.cc/authorize", "url=http://wx.natappvip.cc/userInfo&state=null");
-        System.out.println(s);
+    @RequestMapping("/test.do")
+    public String test(){
+        System.out.println("进来了");
+        String redirectUrl = redirectUrlUtil.redirectUrl();
+        return "redirect:"+redirectUrl;
     }
 
-    @RequestMapping("/authorize")
+    @ResponseBody
+    @RequestMapping("/get.do")
+    public String get(WxMpUser user){
+        String nickname = user.getNickname();
+        System.out.println(nickname);
+        return "成功+"+user.toString();
+    }
+
+    /**
+     * state参数传递
+     * @param url
+     * @param state
+     * @return
+     */
+    @RequestMapping("/authorize.do")
     public String authorize(@RequestParam("url")String url,
                             @RequestParam("state") String state){
-        String resultUrl = wxMpService.oauth2buildAuthorizationUrl(url, WxConsts.OAuth2Scope.SNSAPI_USERINFO, URLEncoder.encode(url));
+        String resultUrl = wxMpService.oauth2buildAuthorizationUrl(url, WxConsts.OAuth2Scope.SNSAPI_USERINFO, URLEncoder.encode(state));
         log.info("【微信网页授权】获取code,redirectUrl={}",resultUrl);
         return "redirect:"+resultUrl;//重定向到userInfo方法
     }
 
-    @ResponseBody
-    @RequestMapping("/userInfo")
-    public String userInfo(@RequestParam("code") String code,@RequestParam("state") String state){
+
+    @RequestMapping("/userInfo.do")
+    public String userInfo(@RequestParam("code") String code, @RequestParam("state") String state, ModelMap modelMap){
         WxMpOAuth2AccessToken wxMpOAuth2AccessToken = new WxMpOAuth2AccessToken();
 
         try{
@@ -73,6 +101,31 @@ public class WeChatController {
             log.info("【获取微信用户信息】获取微信用户信息失败,user={}",user);
         }
 
-        return user.toString();
+        String nickname = user.getNickname();
+        String city = user.getCity();
+        String country = user.getCountry();
+        String openId1 = user.getOpenId();
+        String province = user.getProvince();
+        Integer sex = user.getSex();
+        String headImgUrl = user.getHeadImgUrl();
+
+        modelMap.put("nickname",nickname);
+        modelMap.put("city",city);
+        modelMap.put("country",country);
+        modelMap.put("openId",openId1);
+        modelMap.put("province",province);
+        modelMap.put("openId",openId1);
+        modelMap.put("sex",sex);
+        modelMap.put("headImgUrl",headImgUrl);
+        String param = "?nickname="+nickname+
+                        "&city="+city+
+                        "&country="+country+
+                        "&openId="+openId1+
+                        "&province="+province+
+                        "&sex="+sex+
+                        "&headImgUrl="+headImgUrl;
+        String url = state+param;
+
+        return "redirect:"+url;
     }
 }
