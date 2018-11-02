@@ -18,3 +18,11 @@
         String redirectUrl = redirectUrlUtil.redirectUrl();
         return "redirect:"+redirectUrl;
     }
+
+
+    <!--添加微信公众号依赖-->
+		<dependency>
+			<groupId>com.github.binarywang</groupId>
+			<artifactId>weixin-java-mp</artifactId>
+			<version>3.0.0</version>
+		</dependency>
