@@ -13,6 +13,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 /**
+ * 扩展springmvc
  * Created by Zy on 2018/11/2.
  */
 @Configuration
@@ -27,17 +28,5 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .maxAge(3600);//跨域允许时间
     }
 
-    @Bean
-    public HttpMessageConverter<String> responseBodyConverter() {
-        StringHttpMessageConverter converter = new StringHttpMessageConverter(
-                Charset.forName("UTF-8"));
-        return converter;
-    }
-
-    @Override
-    public void configureContentNegotiation(
-            ContentNegotiationConfigurer configurer) {
-        configurer.favorPathExtension(false);
-    }
 
 }

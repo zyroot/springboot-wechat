@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.management.StandardEmitterMBean;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 
@@ -38,32 +39,33 @@ public class WeChatController {
     private RedirectUrlUtil redirectUrlUtil;
 
     /**
-     *
-     http://wx.natappvip.cc/authorize?url=http://wx.natappvip.cc/userInfo&state=null，
-     http://localhost/authorize?url=http://wx.natappvip.cc/userInfo&state=null，
      http://app.ei-marketing.net/authorize?url=http://app.ei-marketing.net/userInfo&state=null，
      用户通过访问该链接后，在上面这个userInfo方法中就可以通过@RequestParam获取到code和state，
      不过这里我们并没有state并没有传值，所以获取到也没用。获取到了code，
      就可以获取到wxMpOAuth2AccessToken，
      获取到了wxMpOAuth2AccessToken就可以获取到openId、accessToken、wxMpUser等信息了。
-     http://wx.natappvip.cc/authorize?url=http://wx.natappvip.cc/userInfo&state=http://wx.natappvip.cc/get
      */
-    @RequestMapping("/test.do")
-    public String test(){
-        System.out.println("进来了");
-        String redirectUrl = redirectUrlUtil.redirectUrl();
-        return "redirect:"+redirectUrl;
-    }
 
+    //使用方式
+    //1.书写一个最后重定向的，并接受用户信息的接口，http://192.168.160.1:8080/wechat/get.do
     @ResponseBody
-    @RequestMapping("/get.do")
+    @RequestMapping(value = "/get.do",produces="text/plain;charset=UTF-8")
     public String get(WxMpUser user){
         String nickname = user.getNickname();
         System.out.println(nickname);
         return "成功+"+user.toString();
     }
 
+    //2.调用封装的工具类(RedirectUrlUtil)，重定向到拼装的路径
+    @RequestMapping("/test.do")
+    public String test(){
+        String redirectUrl = redirectUrlUtil.redirectUrl();
+        return "redirect:"+redirectUrl;
+    }
+
+
     /**
+     * 服务器方法
      * state参数传递
      * @param url
      * @param state
@@ -78,6 +80,14 @@ public class WeChatController {
     }
 
 
+    /**
+     * 服务器方法
+     * 获取用户对象
+     * @param code
+     * @param state
+     * @param modelMap
+     * @return
+     */
     @RequestMapping("/userInfo.do")
     public String userInfo(@RequestParam("code") String code, @RequestParam("state") String state, ModelMap modelMap){
         WxMpOAuth2AccessToken wxMpOAuth2AccessToken = new WxMpOAuth2AccessToken();
@@ -117,15 +127,24 @@ public class WeChatController {
         modelMap.put("openId",openId1);
         modelMap.put("sex",sex);
         modelMap.put("headImgUrl",headImgUrl);
-        String param = "?nickname="+nickname+
-                        "&city="+city+
-                        "&country="+country+
-                        "&openId="+openId1+
-                        "&province="+province+
-                        "&sex="+sex+
-                        "&headImgUrl="+headImgUrl;
-        String url = state+param;
 
+        String param = null;
+        try {
+            param = "?nickname="+URLEncoder.encode(nickname, "UTF-8")+
+                            "&city="+URLEncoder.encode(city,"UTF-8")+
+                            "&country="+URLEncoder.encode(country, "UTF-8")+
+                            "&openId="+URLEncoder.encode(openId1, "UTF-8")+
+                            "&province="+URLEncoder.encode(province, "UTF-8")+
+                            "&sex="+URLEncoder.encode(sex+"", "UTF-8")+
+                            "&headImgUrl="+URLEncoder.encode(headImgUrl, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        if(param == null){
+            return "";
+        }
+        String url = state+param;//封装参数 重定向携带参数
         return "redirect:"+url;
     }
 }
