@@ -64,6 +64,7 @@
 	</properties>
 
 	<build>
+		<finalName>springboot-wechat-zy</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
