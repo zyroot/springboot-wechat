@@ -2,6 +2,7 @@
 微信授权dome
  //使用方式
  
+     先导入util包下的 RedirectUrlUtil类
  
     //1.书写一个最后重定向的，并接受用户信息的接口，http://192.168.160.1:8080/wechat/get.do
     @ResponseBody
